@@ -17,9 +17,9 @@ The interpreter mode may use `N` threads with option `souffle -j N`.
 ```bash
 cd day01
 # run
-souffle -D- -F. day01a.dl
+souffle --no-preprocessor -D- -F. day01a.dl
 # or run with 4 threads
-souffle -D- -F. -j 4 day01b.dl
+souffle --no-preprocessor -D- -F. -j 4 day01b.dl
 ```
 
 ### Compiled mode

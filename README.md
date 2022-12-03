@@ -30,10 +30,10 @@ For long programs, or programs with large input, Souffle can generate c++ code.
 cd day06
 
 # compile, run on 8 threads and drop the executable
-souffle -D- -F. -j 8 -c day06a
+souffle --no-preprocessor -D- -F. -j 8 -c day06a
 
 # compile and keep the executable
-souffle -D- -F. -o day06a day06a.dl
+souffle --no-preprocessor -D- -F. -o day06a day06a.dl
 # run on 4 threads
 ./day06a -j 4
 ```

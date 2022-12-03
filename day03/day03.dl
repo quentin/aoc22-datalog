@@ -1,0 +1,24 @@
+.once
+
+.decl rucksacks(rucksack:number, items:symbol)
+.input rucksacks(filename="day03.facts",delimiter=" ")
+
+/// Holds if `item` has `priority`.
+.decl item_priority(item:symbol, priority:number)
+item_priority(item, i+1) :-
+  i = range(0,52),
+  item = substr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", i, 1).
+
+/// Holds if `rucksack` contains `size` items.
+.decl rucksack_size(rucksack:number, size:number)
+rucksack_size(rucksack, size) :-
+  rucksacks(rucksack, items),
+  size = strlen(items).
+
+/// Holds if `rucksack` items list contains `item` at `position`.
+.decl rucksack_item(rucksack:number, position:number, item:symbol)
+rucksack_item(rucksack, position, item) :-
+  rucksacks(rucksack, items),
+  rucksack_size(rucksack, size),
+  position = range(0, size),
+  item = substr(items, position, 1).

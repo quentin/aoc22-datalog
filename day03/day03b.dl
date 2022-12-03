@@ -1,0 +1,18 @@
+.include "day03.dl"
+
+/// Holds if there is a group of 3 elves carrying the common `item`.
+/// Each group is uniquely identified by its `group` number.
+.decl elves_group(group:number, item:symbol)
+elves_group(group, item) :-
+  group % 3 = 0,
+  rucksack_item(group, _, item),
+  rucksack_item(group+1, _, item),
+  rucksack_item(group+2, _, item).
+.output elves_group()
+
+.decl answer(v:number)
+answer(v) :-
+  v = sum priority : {
+    elves_group(_group, item), item_priority(item, priority)
+  }.
+.output answer()

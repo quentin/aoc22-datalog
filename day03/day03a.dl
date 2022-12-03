@@ -1,0 +1,20 @@
+.include "day03.dl"
+
+/// Holds if both compartments of `rucksack` contain `item`.
+.decl in_both_compartments(rucksack:number, item:symbol)
+in_both_compartments(rucksack, item) :-
+  rucksack_size(rucksack, size),
+  rucksack_item(rucksack, p1, item),
+  p1 < size / 2,
+  rucksack_item(rucksack, p2, item),
+  p2 >= size / 2.
+
+.decl answer(v:number)
+answer(v) :-
+  // sum of the `priority` from the computed set of tuples
+  v = sum priority : {
+    // produce the set of tuples `[_rucksack, item, priority]`
+    in_both_compartments(_rucksack, item), item_priority(item, priority)
+  }.
+
+.output answer()

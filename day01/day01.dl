@@ -1,0 +1,24 @@
+.once
+
+.decl list(line:number, empty:number, calories:number)
+.input list(filename="day01.facts",delimiter=" ")
+
+/// Holds if `line` is an empty line in the input list.
+.decl empty_line(line:number)
+empty_line(line) :- list(line, 1, _).
+
+/// Holds if `first_line` is the first line of an Elf's inventory, `last_line`
+/// is some line in the same Elf's inventory and `cals` is the sum of calories
+/// from `first_line` to `last_line`.
+.decl calories_in_inventory_range(first_line:number, last_line:number, cals:number)
+/// bootstrap with the first line of each inventory
+calories_in_inventory_range(0, 0, c) :-
+  list(0, 0, c).
+calories_in_inventory_range(line+1,line+1,c) :-
+  list(line, 1, _),
+  list(line+1, 0, c).
+/// increase range to next non-empty line
+calories_in_inventory_range(from, to+1, crange + c) :-
+  calories_in_inventory_range(from, to, crange),
+  list(to+1, 0, c).
+

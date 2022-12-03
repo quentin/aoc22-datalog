@@ -1,0 +1,40 @@
+.once
+
+/// The three shapes / moves of the game.
+.type Shape = Rock{} | Paper{} | Scissors{}
+
+/// Holds if `move` is decrypted into `shape`.
+.decl decrypt_shape(move:symbol, shape:Shape)
+decrypt_shape("A", $Rock()).
+decrypt_shape("B", $Paper()).
+decrypt_shape("C", $Scissors()).
+decrypt_shape("X", $Rock()).
+decrypt_shape("Y", $Paper()).
+decrypt_shape("Z", $Scissors()).
+
+
+/// Holds if the encrypted guide contains the triplet `round`, `opponent_move`, `response`.
+.decl encrypted(round:number, opponent_move:symbol, response:symbol)
+.input encrypted(filename="day02.facts",delimiter=" ")
+
+/// Holds if playing `win` wins against `loose`.
+.decl wins(win:Shape, loose:Shape)
+wins($Rock(), $Scissors()).
+wins($Paper(), $Rock()).
+wins($Scissors(), $Paper()).
+
+/// Holds if selecting the `shape` grants the `score`.
+.decl shape_score(shape:Shape, score:number)
+shape_score($Rock(), 1).
+shape_score($Paper(), 2).
+shape_score($Scissors(), 3).
+
+/// Holds if playing `response_shape` against `opponent_shape` grants the `score`.
+.decl outcome(opponent_shape:Shape, response_shape:Shape, score:number)
+/// draw
+outcome(s,s,3) :- (s = $Rock() ; s = $Paper() ; s = $Scissors()).
+/// loss
+outcome(o,r,0) :- wins(o,r).
+/// win
+outcome(o,r,6) :- wins(r,o).
+

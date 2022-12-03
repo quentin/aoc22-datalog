@@ -1,0 +1,41 @@
+.include "day02.dl"
+
+.type Outcome = Lose{} | Draw{} | Win{}
+
+.decl outcome_score(outcome:Outcome, score:number)
+outcome_score($Lose(), 0).
+outcome_score($Draw(), 3).
+outcome_score($Win(), 6).
+
+.decl decrypt_outcome(move:symbol, outcome:Outcome)
+decrypt_outcome("X", $Lose()).
+decrypt_outcome("Y", $Draw()).
+decrypt_outcome("Z", $Win()).
+
+.decl guide(round:number, opponent_shape:Shape, expected_outcome:Outcome)
+guide(round, op, ex) :-
+  encrypted(round, op0, ex0),
+  decrypt_shape(op0, op),
+  decrypt_outcome(ex0, ex).
+
+.decl response(round:number, response_shape:Shape)
+response(round, r) :-
+  guide(round, o, $Lose()),
+  wins(o, r).
+response(round, o) :-
+  guide(round, o, $Draw()).
+response(round, r) :-
+  guide(round, o, $Win()),
+  wins(r, o).
+
+.decl round_score(round:number, score:number)
+round_score(round, ss + os) :-
+  response(round, response_shape),
+  guide(round, _, expected_outcome),
+  shape_score(response_shape, ss),
+  outcome_score(expected_outcome, os).
+
+.decl answer(total_score:number)
+.output answer()
+answer(total_score) :-
+  total_score = sum s : round_score(_, s).

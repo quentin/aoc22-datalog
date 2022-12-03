@@ -1,0 +1,6 @@
+.include "day01.dl"
+
+.decl answer(cals:number)
+.output answer()
+answer(cals) :-
+  cals = max c : calories_in_inventory_range(_,_,c).

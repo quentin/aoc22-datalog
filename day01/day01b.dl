@@ -1,0 +1,38 @@
+.include "day01.dl"
+
+/// Holds if the amount of calories in the inventory starting at `first_line` is `cals`.
+.decl calories_in_inventory(first_line:number, cals:number)
+calories_in_inventory(first_line, cals) :-
+  calories_in_inventory_range(first_line, _, _),
+  cals = max c : { calories_in_inventory_range(first_line, _, c) }.
+
+/// Holds if the number of inventories with `cals` calories is `occurs_count`.
+.decl group_by_calories(cals:number, occurs_count:number)
+group_by_calories(cals, occurs_count) :-
+  calories_in_inventory(_, cals),
+  occurs_count = count : { calories_in_inventory(_, cals) }.
+
+/// `group_by_calories` sorted by decreasing calories, `i` is the index.
+/// Group at index `0` is the most calorific.
+.decl sorted(i:number, cals:number, occurs_count:number)
+sorted(i, cals, occurs_count) :-
+  group_by_calories(cals, occurs_count),
+  i = count : { group_by_calories(c, _), c > cals }.
+.output sorted
+
+/// Holds if `cals` is the sum of the calories in the three most calorific
+/// inventories.
+.decl answer(cals:number)
+.output answer()
+/// must account for cases where several inventories have the same calories sum.
+answer(c0 + c1 + c2) :-
+  ( // occurences of the top most calorific groups: 1, 1, n>=1
+    sorted(0, c0, 1), sorted(1, c1, 1), sorted(2, c2, _)
+  ; // 1, n>=2
+    sorted(0, c0, 1), sorted(1, c1, n), sorted(1, c2, n), n >= 2
+  ; // 2, n>=1
+    sorted(0, c0, 2), sorted(0, c1, 2), sorted(1, c2, _)
+  ; // n>=3
+    sorted(0, c0, n), sorted(0, c1, n), sorted(0, c2, n), n >= 3
+  ).
+

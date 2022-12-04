@@ -1,0 +1,16 @@
+.include "day04.dl"
+
+/// Holds if ranges partially overlap in `pair`.
+.decl partially_overlaps(pair:number)
+partially_overlaps(pair) :-
+  pairs(pair, from1, to1, from2, to2),
+  // exclude pairs where ranges do not overlap
+  !( from1 < from2, to1 < from2
+   ; from2 < from1, to2 < from1
+   ).
+
+/// Holds if the number of partially overlapping pairs is `v`.
+.decl answer(v:number)
+.output answer()
+answer(v) :-
+  v = count : { partially_overlaps(_) }.

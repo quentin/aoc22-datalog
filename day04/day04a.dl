@@ -1,0 +1,15 @@
+.include "day04.dl"
+
+/// Holds if one range fully overlaps the other in `pair`.
+.decl fully_overlaps(pair:number)
+fully_overlaps(pair) :-
+  pairs(pair, from1, to1, from2, to2),
+  ( from1 <= from2, to1 >= to2
+  ; from2 <= from1, to2 >= to1
+  ).
+
+/// Holds if the number of fully overlapping pairs is `v`.
+.decl answer(v:number)
+.output answer()
+answer(v) :-
+  v = count : { fully_overlaps(_) }.

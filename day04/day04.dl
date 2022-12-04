@@ -1,0 +1,8 @@
+.once
+
+/// Holds if the puzzle input contains the `pair` with first element
+/// ranging from `from1` to `to1` and second element ranging from
+/// `from2` to `to2`.
+.decl pairs(pair:number, from1:number, to1:number, from2:number, to2:number)
+.input pairs(filename="day04.facts", delimiter=" ")
+

@@ -1,0 +1,56 @@
+.once
+
+/// Holds if input `stack` has `mark` at `depth`.
+.decl in_stacks(stack:number, depth:number, mark:symbol)
+.input in_stacks(filename="stacks.facts", delimiter=" ")
+
+/// Holds if input `move` moves `cnt` elements from stack `from` to stack `to`.
+.decl moves(move:number, cnt:number, from:number, to:number)
+.input moves(filename="moves.facts", delimiter=" ")
+
+/// Holds if after `move` the `stack` element at `depth` is `mark`.
+///
+/// Each puzzle adds a `stacks` rule that defines how marks are moved.
+.decl stacks(move:number, stack:number, depth:number, mark:symbol)
+
+/// Bootstrap initial state before first move with input stacks.
+stacks(0, stack, depth, mark) :-
+  in_stacks(stack, depth, mark).
+
+/// stacks left unmodified if not part of the `move`.
+stacks(move, stack, depth, mark) :-
+  moves(move, _, from, to),
+  stacks(move-1, stack, depth, mark),
+  stack != from,
+  stack != to.
+
+/// at `move` increase depth of elements in `to` by the move's count.
+stacks(move, to, depth+cnt, mark) :-
+  moves(move, cnt, _, to),
+  stacks(move-1, to, depth, mark).
+
+/// at `move` decrease depth of remaining elements in `from` by the move's count
+stacks(move, from, depth-cnt, mark) :-
+  moves(move, cnt, from, _),
+  stacks(move-1, from, depth, mark),
+  depth >= cnt.
+
+/// Holds if after the last move, the top mark of `stack` is `mark`.
+.decl end_top_mark(stack:number, mark:symbol)
+end_top_mark(stack, mark) :-
+  last_move = max move : { moves(move, _, _, _) },
+  stacks(last_move, stack, 0, mark).
+
+/// Holds if the answer message substring `[0,len)` is `msg`.
+.decl message(len:number, msg:symbol)
+message(0, "").
+message(len, cat(msg, mark)) :-
+  message(len-1, msg),
+  end_top_mark(len, mark).
+
+/// Holds if the puzzle answer is `msg`.
+.decl answer(msg:symbol)
+answer(msg) :-
+  message(len, msg),
+  len = max l : { message(l, _) }.
+.output answer()

@@ -1,0 +1,8 @@
+.include "day05.dl"
+
+/// at `move` transfer top elements in order.
+stacks(move, to, depth, mark) :-
+  moves(move, cnt, from, to),
+  stacks(move-1, from, depth, mark),
+  depth < cnt.
+

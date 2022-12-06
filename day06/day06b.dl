@@ -1,0 +1,28 @@
+.include "day06.dl"
+
+/// Holds if the same character appears at positions `from` and `to`
+/// less than 14 characters appart.
+///
+/// Such range cannot appear in a message.
+.decl exclude_range(from:number, to:number)
+exclude_range(from, to) :-
+  char_at(from, char),
+  char_at(to, char),
+  from < to,
+  to - from < 14.
+
+/// Holds if the range `from` to `to` is a message.
+///
+/// A message is a 14 characters range that does not
+/// contain any excluded range.
+.decl message(from:number, to:number)
+message(from, to) :-
+  char_at(from, _),
+  char_at(to, _),
+  to = from + 13,
+  0 = count : { exclude_range(i,j), from <= i, j <= to }.
+
+.decl answer(pos:number)
+answer(pos) :-
+  pos = min to : { message(_,to) }.
+.output answer()

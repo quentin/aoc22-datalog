@@ -1,0 +1,15 @@
+.once
+
+/// Holds if `s` is the input stream.
+.decl stream(s:symbol)
+.input stream(filename="day06.facts")
+
+/// Holds if input stream character `char` appears at position `nth`.
+///
+/// First position is `1`.
+.decl char_at(nth:number, char:symbol)
+char_at(index+1, char) :-
+  stream(s),
+  index = range(0, strlen(s)),
+  char = substr(s, index, 1).
+

@@ -1,0 +1,21 @@
+.include "day06.dl"
+
+/// Holds if a packet marker is detected after the `nth` character.
+.decl detected_packet(nth:number)
+detected_packet(nth) :-
+  char_at(nth, c1),
+  char_at(nth-1, c2),
+  char_at(nth-2, c3),
+  char_at(nth-3, c4),
+  // 4 successive characters must be distinct from each-others
+  c1 != c2,
+  c1 != c3,
+  c1 != c4,
+  c2 != c3,
+  c2 != c4,
+  c3 != c4.
+
+.decl answer(v:number)
+answer(v) :-
+  v = min i : detected_packet(i).
+.output answer()

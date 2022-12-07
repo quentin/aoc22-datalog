@@ -1,0 +1,65 @@
+.once
+
+/// The type of terminal lines.
+.type Line =
+    cd { name:symbol }
+  | ls { }
+  | dir { name:symbol }
+  | file { name:symbol, size:number }
+
+/// Holds if `line` is the content of terminal's line at position `lineno`.
+.decl terminal(lineno:number, line:Line)
+.input terminal(filename="day07.facts", rfc4180="true")
+
+/// The type of filesystem paths.
+.type Path = [ name:symbol, parent:Path]
+
+/// Holds if `path` is the current working directory after terminal line `lineno`.
+.decl cwd(lineno:number, path:Path)
+cwd(-1, ["",nil]).
+
+/// Stay in same directory.
+cwd(lineno, path) :-
+  terminal(lineno, line),
+  cwd(lineno-1, path),
+  ( line = $ls()
+  ; line = $dir(_)
+  ; line = $file(_,_)
+  ).
+
+/// Change to root directory.
+cwd(lineno, ["", nil]) :-
+  terminal(lineno, $cd("/")).
+
+/// Change to named sub-directory.
+cwd(lineno, [name, parent]) :-
+  terminal(lineno, $cd(name)),
+  name != "..",
+  name != "/",
+  cwd(lineno-1, parent).
+
+/// Change to parent directory.
+cwd(lineno, parent) :-
+  terminal(lineno, $cd("..")),
+  cwd(lineno-1, [_, parent]).
+
+/// Holds if there is `file` of size `size` has an ancestor directory `ancestor_dir`.
+///
+/// An ancestor of a file is a direct or indirect parent directory.
+.decl size_ancestor(size:number, file:Path, ancestor_dir:Path)
+
+/// Bootstrap with parent of each file.
+size_ancestor(size, [name, parent], parent) :-
+  terminal(lineno, $file(name,size)),
+  cwd(lineno, parent).
+
+/// Recursive propagation to parent of directory.
+size_ancestor(size, file, ancestor) :-
+  size_ancestor(size, file, [_,ancestor]).
+
+/// Holds if `total_size` is the total size of directory `dir`.
+.decl directory_total_size(dir:Path, total_size:number)
+directory_total_size(dir, total_size) :-
+  size_ancestor(_, _, dir),
+  total_size = sum size : { size_ancestor(size, _, dir) }.
+

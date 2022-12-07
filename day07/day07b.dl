@@ -1,0 +1,17 @@
+.include "day07.dl"
+
+/// Holds if the directory to delete must be at least of total size `size`.
+.decl minimum_size_to_delete(size:number)
+minimum_size_to_delete(minsize) :-
+  directory_total_size(["",nil], used),
+  free = 70000000 - used,
+  ( free < 30000000, minsize = 30000000 - free
+  ; free >= 30000000, minsize = 0
+  ).
+
+/// Holds if the answer is `v`.
+.decl answer(v:number)
+answer(v) :-
+  minimum_size_to_delete(minsize),
+  v = min total_size : { directory_total_size(_, total_size), total_size >= minsize }.
+.output answer()

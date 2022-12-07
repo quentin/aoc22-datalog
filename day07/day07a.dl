@@ -1,0 +1,8 @@
+.include "day07.dl"
+
+/// Holds if `v` is the puzzle answer.
+.decl answer(v:number)
+.output answer()
+answer(v) :-
+  v = sum total_size : { directory_total_size(_, total_size), total_size <= 100000 }.
+

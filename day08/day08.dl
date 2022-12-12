@@ -1,0 +1,10 @@
+.once
+
+.decl forest(row:number, heights:symbol)
+.input forest(filename="day08.facts", delimiter=" ")
+
+.decl tree(row:number, col:number, height:number)
+tree(row, col, height) :-
+  forest(row, heights),
+  col = range(0, strlen(heights)),
+  height = to_number(substr(heights, col, 1)).

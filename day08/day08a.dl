@@ -1,0 +1,22 @@
+.include "day08.dl"
+
+/// Holds if tree at position `row`,`col` is visible from at least one edge of
+/// the forest.
+.decl visible_tree(row:number, col:number)
+
+visible_tree(row, col) :-
+  tree(row, col, height),
+  ( /* no taller tree on the left */
+    0 = count : { tree(row, c, h), c < col, h >= height }
+  ; /* or no taller tree on the right */
+    0 = count : { tree(row, c, h), col < c, h >= height }
+  ; /* or no taller tree above */
+    0 = count : { tree(r, col, h), r < row, h >= height }
+  ; /* or no taller tree below */
+    0 = count : { tree(r, col, h), row < r, h >= height }
+  ).
+
+.decl answer(v:number)
+answer(v) :-
+  v = count : { visible_tree(_,_) }.
+.output answer()

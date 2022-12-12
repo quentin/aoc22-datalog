@@ -1,0 +1,58 @@
+.include "day08.dl"
+
+/// Holds if a tree is observable at `distance` from viewpoint at `[row,col]`
+/// in the direction given by unit vector `[delta_row, delta_col]`.
+///
+/// The subsumption rule below deletes all but the highest `distance` for a
+/// given viewpoint and direction vector. Eventually `distance` is the viewing
+/// distance.
+.decl viewing_distance(row:number, col:number, delta_row:number, delta_col:number, distance:number)
+
+/// bootstrap with viewing distance of zero.
+viewing_distance(row, col, dr, dc, 0) :-
+  tree(row, col, _),
+  ( dr = -1, dc = 0
+  ; dr = 1, dc = 0
+  ; dr = 0, dc = -1
+  ; dr = 0, dc = 1
+  ).
+
+/// the closest tree in any direction is always visible from the point of view.
+viewing_distance(row, col, dr, dc, 1) :-
+  viewing_distance(row, col, dr, dc, 0),
+  tree(row+dr, col+dc, _).
+
+/// the next tree in a given direction is visible if the previous tree is
+/// visible and is strictly smaller than the point of view.
+viewing_distance(row, col, dr, dc, next_dist) :-
+  // viewpoint
+  tree(row, col, max_height),
+  // previous tree visible from distance `prev_dist`
+  viewing_distance(row, col, dr, dc, prev_dist),
+  prev_dist > 0,
+  tree(row+dr*prev_dist, col+dc*prev_dist, previous_height),
+  previous_height < max_height,
+  // next tree
+  next_dist = prev_dist + 1,
+  tree(row+dr*next_dist, col+dc*next_dist, _).
+
+/// Eliminate fact about a distance when a higher distance is found from the same
+/// viewpoint in the same direction.
+viewing_distance(row, col, dr, dc, d1) <= viewing_distance(row, col, dr, dc, d2) :-
+  d1 < d2.
+
+/// Holds if the scenic_score of viewpoint `row`,`col` is non-zero
+/// and equals to `score`.
+.decl scenic_score(row:number, col:number, score:number)
+scenic_score(row, col, score) :-
+  tree(row, col, _),
+  score = d1 * d2 * d3 * d4,
+  viewing_distance(row, col, -1, 0, d1),
+  viewing_distance(row, col, 1, 0, d2),
+  viewing_distance(row, col, 0, -1, d3),
+  viewing_distance(row, col, 0, 1, d4).
+
+.decl answer(v:number)
+answer(v) :-
+  v = max score : { scenic_score(_,_,score) }.
+.output answer()

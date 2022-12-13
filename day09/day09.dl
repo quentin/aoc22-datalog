@@ -1,0 +1,71 @@
+.once
+
+/// select delta-max-bound heuristics to solve recursive stratum.
+.pragma "RamSIPS" "delta-max-bound"
+
+/// Holds if the `move` is a displacement of the head in `direction` of
+/// `length` units.
+.decl moves(move:number, direction:symbol, length:number)
+.input moves(filename="day09.facts", delimiter=" ")
+
+/// Holds if the unit direction vector for `direction` is `[delta_row, delta_col]`.
+.decl dir_vector(direction:symbol, delta_row:number, delta_col:number)
+dir_vector("U", -1, 0).
+dir_vector("D", 1, 0).
+dir_vector("L", 0, -1).
+dir_vector("R", 0, 1).
+
+/// Holds if the `move` ranges in steps `[first_step, end_step)` with
+/// displacement unit vector `[delta_row, delta_col]`.
+///
+/// A step is a unitary displacement.
+.decl steps(move:number, delta_row:number, delta_col:number, first_step:number, end_step:number)
+
+/// Bootstrap steps with first move.
+steps(0, dr, dc, 0, length) :-
+  moves(0, direction, length),
+  dir_vector(direction, dr, dc).
+
+/// Steps of next move.
+steps(move+1, dr, dc, first_step, first_step+length) :-
+  steps(move, _, _, _, first_step),
+  moves(move+1, direction, length),
+  dir_vector(direction, dr, dc).
+
+/// Holds if the head is at position `[row,col]` before `step`.
+.decl head_before(step:number, row:number, col:number)
+
+/// Bootstrap first step at position `[0,0]`.
+head_before(0, 0, 0).
+
+/// The head position at next step is computed from the head position at
+/// current step plus the displacement vector of the current step.
+head_before(step+1, row+dr, col+dc) :-
+  head_before(step, row, col),
+  steps(_, dr, dc, first_step, end_step),
+  first_step <= step,
+  step < end_step.
+
+
+/// The three types of configuration for the head and tail in a well-formed
+/// steady state of the simulation:
+.type Config =
+    /// head and tail are overlapping:
+    ///
+    /// ```
+    /// H
+    /// ```
+    Overlapping{}
+  | /// aligned adjacent head and tail are either on the same row or on the same column:
+    ///
+    /// ```
+    /// TH
+    /// ```
+    Aligned{}
+  | /// diagonaly adjacent head and tail are on different row and column:
+    /// ```
+    ///  H
+    /// T
+    /// ```
+    Diagonal{}
+

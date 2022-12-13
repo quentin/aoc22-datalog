@@ -1,0 +1,123 @@
+.include "day09.dl"
+
+/// Holds if `config` is the configuration of the head and the tail before
+/// `step`.
+.decl config_before(step:number, config:Config)
+
+/// Eliminate previous configurations when a more recent is known.
+///
+/// This is a performance optimisation (42s vs 1.7s)
+config_before(step1, _) <= config_before(step2, _) :-
+  step1 < step2.
+
+/// Holds if the tail is at position `[row,col]` before `step`.
+.decl tail_before(step:number, row:number, col:number)
+
+/// Disabled this subsumption rule as it actually slows the evaluation (0.7s vs 1.7s),
+/// the subsumtion on `config_before` is sufficient.
+///
+//tail_before(step1, row, col) <= tail_before(step2, row, col) :-
+//  step1 < step2.
+
+/// Holds if position `[row,col]` has been visited by the tail during the
+/// simulation.
+.decl visited(row:number, col:number)
+
+/// The set of visited positions is the set of tail positions before each step.
+visited(row, col) :-
+  tail_before(_, row, col).
+
+/// Bootstrap tail position at `[0,0]`.
+tail_before(0, 0, 0).
+
+/// Bootstrap the configuration before first step: head and tail are
+/// overlapping in the start configuration.
+config_before(0, $Overlapping()).
+
+/// From the overlapping configuration, the tail does not move regardless of
+/// the head movement:
+///
+/// ```
+/// |H>  => |TH
+/// ```
+config_before(step+1, $Aligned()),
+tail_before(step+1, tr, tc) :-
+  config_before(step, $Overlapping()),
+  tail_before(step, tr, tc).
+
+/// From the aligned configuration, the tail does not move when the next head
+/// position overlaps the current tail position:
+///
+/// ```
+/// |TH<  => |H
+/// ```
+config_before(step+1, $Overlapping()),
+tail_before(step+1, tr, tc) :-
+  config_before(step, $Aligned()),
+  tail_before(step, tr, tc),
+  head_before(step+1, tr, tc).
+
+/// From the aligned configuration, the tail does not move when the next head
+/// position is not aligned with the tail:
+///
+/// ```
+///   ^       H
+/// |TH  => |T
+/// ```
+config_before(step+1, $Diagonal()),
+tail_before(step+1, tr, tc) :-
+  config_before(step, $Aligned()),
+  tail_before(step, tr, tc),
+  head_before(step+1, nhr, nhc),
+  nhr != tr,
+  nhc != tc.
+
+/// From the aligned configuration, the tail move to the head position when
+/// the next head position is not adjacent with the current tail position.
+///
+/// ```
+/// |TH>  => | TH
+/// ```
+config_before(step+1, $Aligned()),
+tail_before(step+1, hr, hc) :-
+  config_before(step, $Aligned()),
+  tail_before(step, tr, tc),
+  head_before(step+1, nhr, nhc),
+  ( nhr = tr, nhc != tc
+  ; nhr != tr, nhc = tc
+  ),
+  head_before(step, hr, hc).
+
+/// From the diagonal configuration, the tail does not move when the next head
+/// position is aligned with the current tail position.
+/// ```
+/// |<H      |H
+/// |T    => |T
+/// ```
+config_before(step+1, $Aligned()),
+tail_before(step+1, tr, tc) :-
+  config_before(step, $Diagonal()),
+  tail_before(step, tr, tc),
+  ( head_before(step+1, nhr, _), nhr = tr
+  ; head_before(step+1, _, nhc), nhc = tc
+  ).
+
+/// From the diagonal configuration, the tail move to the head position when
+/// the next head position is not aligned with the current tail position.
+/// ```
+/// | H>     | TH
+/// |T    => |
+/// ```
+config_before(step+1, $Aligned()),
+tail_before(step+1, hr, hc) :-
+  config_before(step, $Diagonal()),
+  tail_before(step, tr, tc),
+  head_before(step, hr, hc),
+  head_before(step+1, nhr, nhc),
+  nhr != tr,
+  nhc != tc.
+
+.decl answer(v:number)
+answer(v) :-
+  v = count : { visited(_,_) }.
+.output answer()

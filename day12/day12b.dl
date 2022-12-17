@@ -1,0 +1,25 @@
+.include "day12.dl"
+
+/// Holds if there is a path from the cell `start` of minimum elevation to cell `to` in `len` moves.
+.decl path(start:Cell, to:Cell, len:number)
+
+/// Zero-length path from a starting cell.
+path([row,col], [row,col], 0) :-
+  heightmap(row, col, 0, _, _).
+
+/// Keep shortest path to cell.
+path(start, to, l1) <= path(start, to, l2) :-
+  l2 <= l1.
+
+/// Incrementally build a path from cell `start` to cell `to`.
+path(from, to, l + 1) :-
+  path(from, inter, l),
+  flow(inter, to),
+  from != to,
+  inter != to.
+
+.decl answer(len:number)
+answer(len) :-
+  heightmap(row, col, _, _, 1),
+  len = min l : { path(_, [row,col], l) }.
+.output answer()

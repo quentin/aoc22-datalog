@@ -1,0 +1,29 @@
+.once
+.pragma "RamSIPS" "delta-max-bound"
+
+.decl heightmap(row:number, col:number, height:number, is_start:number, is_best_signal:number)
+.input heightmap(filename="day12.facts", delimiter=" ")
+
+/// Holds if we can move from cell `[from_row, from_col]` to cell `[to_row, to_col]`.
+.decl transition(from_row:number, from_col:number, to_row:number, to_col:number)
+transition(fr, fc, tr, tc) :-
+  heightmap(fr, fc, fh, _, _),
+  heightmap(tr, tc, th, _, _),
+  ( tr = fr, tc = fc + 1
+  ; tr = fr, tc = fc - 1
+  ; tr = fr + 1, tc = fc
+  ; tr = fr - 1, tc = fc),
+  th <= fh + 1.
+
+/// A cell.
+.type Cell = [row:number, col:number]
+
+/// Holds if `c` is a cell on the heightmap at position `[row,col]`.
+.decl cell(row:number, col:number, c:Cell)
+cell(row, col, [row, col]) :-
+  heightmap(row, col, _, _, _).
+
+/// Holds if there is a valid move from cell `c1` to its immediate neighboor `c2`.
+.decl flow(c1:Cell, c2:Cell)
+flow([r1,c1], [r2,c2]) :-
+  transition(r1, c1, r2, c2).

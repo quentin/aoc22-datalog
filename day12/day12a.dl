@@ -1,0 +1,24 @@
+.include "day12.dl"
+
+/// Holds if there is a path from the start position to cell `to` in `len` moves.
+.decl path(to:Cell, len:number)
+
+/// Zero-length path to start cell.
+path([row,col], 0) :-
+  heightmap(row, col, _, 1, _).
+
+/// Keep shortest path to cell.
+path(to, l1) <= path(to, l2) :-
+  l2 <= l1.
+
+/// Incrementally build a path to cell `to`.
+path(to, l + 1) :-
+  path(inter, l),
+  flow(inter, to),
+  inter != to.
+
+.decl answer(len:number)
+answer(len) :-
+  heightmap(row, col, _, _, 1),
+  path([row,col], len).
+.output answer()

@@ -1,0 +1,41 @@
+.once
+
+.type Instruction = Noop{} | Addx{v:number}
+
+.decl program(pc:number, instruction:Instruction)
+.input program(filename="day10.facts", delimiter=" ")
+
+.decl i_cycles(instruction:Instruction, ncycles:number)
+
+i_cycles($Noop(), 1).
+i_cycles($Addx(v), 2) :- program(_, $Addx(v)).
+
+.decl pc_first_cycle(pc:number, cycle:number)
+pc_first_cycle(0, 1).
+pc_first_cycle(pc+1, cycle+ncycles) :-
+    pc_first_cycle(pc, cycle),
+    program(pc, instruction),
+    i_cycles(instruction, ncycles).
+
+.decl i_effect(instruction:Instruction, relative_cycle:number, add_to_x:number)
+
+i_effect($Noop(), 0, 0).
+
+i_effect($Addx(v), 0, 0),
+i_effect($Addx(v), 1, v) :-
+  program(_, $Addx(v)).
+
+.decl x_after_cycle(cycle:number, val:number)
+
+x_after_cycle(0, 1).
+x_after_cycle(cycle, val) :-
+  x_after_cycle(cycle-1, before),
+  pc_first_cycle(pc, first_cycle),
+  program(pc, instruction),
+  i_effect(instruction, rel_cycle, add),
+  cycle = first_cycle + rel_cycle,
+  val = before + add.
+
+.decl x_during_cycle(cycle:number, val:number)
+x_during_cycle(cycle+1, val) :-
+  x_after_cycle(cycle, val).

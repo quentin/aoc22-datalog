@@ -1,0 +1,14 @@
+.include "day10.dl"
+
+.decl pixel(row:number, col:number, is_lit:number)
+pixel(row, col, is_lit) :-
+  x_during_cycle(cycle, x),
+  row = (cycle - 1) / 40,
+  col = (cycle - 1) % 40,
+  cycle <= 240,
+  ( col >= x - 1, col <= x + 1, is_lit = 1
+  ; col < x - 1, is_lit = 0
+  ; col > x + 1, is_lit = 0
+  ).
+
+.output pixel()

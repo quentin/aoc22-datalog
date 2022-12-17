@@ -1,0 +1,14 @@
+.include "day10.dl"
+
+.decl answer(v:number)
+answer(v) :-
+  x_during_cycle(20, v20),
+  x_during_cycle(60, v60),
+  x_during_cycle(100, v100),
+  x_during_cycle(140, v140),
+  x_during_cycle(180, v180),
+  x_during_cycle(220, v220),
+  v = 20*v20 + 60*v60 + 100*v100 + 140*v140 + 180*v180 + 220*v220.
+.output answer()
+
+.output x_during_cycle()

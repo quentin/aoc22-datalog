@@ -1,0 +1,17 @@
+.include "day13.dl"
+
+/// Bootstrap comparisons with pairs of values.
+must_compare(l,r) :-
+  packet_data(_, l, r).
+
+/// Holds if the `pair`-th pair is well-ordered (`left < right`).
+.decl well_ordered_pair(pair:number)
+well_ordered_pair(pair) :-
+  packet_data(pair, left, right),
+  compare(left, right, cmp),
+  cmp < 0.
+
+.decl answer(v:number)
+answer(v) :-
+  v = sum pair : { well_ordered_pair(pair) }.
+.output answer()

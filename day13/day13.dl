@@ -1,0 +1,81 @@
+.once
+
+/// The values type
+.type Value =
+    /// A single integer
+    Integer { i:number }
+  | /// A non-empty list (recursive)
+    LinkedList { head:Value, tail:Value }
+  | /// The empty list
+    EmptyList { }
+
+/// Holds if the `pair`-th pair of packets has `left` and `right` values.
+.decl packet_data(pair:number, left:Value, right:Value)
+.input packet_data(filename="day13.facts")
+
+/// Holds if values `left` and `right` must be compared.
+.decl must_compare(left:Value, right:Value)
+
+/// Holds if `cmp` is the result of comparing values `left` and `right`.
+///
+/// `cmp < 0` when `left < right` (well ordered)
+/// `cmp == 0` when `left == right`
+/// `cmp > 0` when `left > right`
+.decl compare(left:Value, right:Value, cmp:number)
+
+/// Trivial `left == right`.
+compare(same, same, 0) :-
+  must_compare(same, same).
+
+compare($Integer(l), $Integer(r), cmp) :-
+  must_compare($Integer(l), $Integer(r)),
+  cmp = l - r.
+
+must_compare(lhead, rhead),
+must_compare(ltail, rtail) :-
+  must_compare(left, right),
+  left = $LinkedList(lhead, ltail),
+  right = $LinkedList(rhead, rtail).
+
+compare(left, right, cmp) :-
+  must_compare(left, right),
+  left = $LinkedList(lhead, _ltail),
+  right = $LinkedList(rhead, _rtail),
+  compare(lhead, rhead, cmp),
+  cmp != 0.
+
+compare(left, right, cmp) :-
+  must_compare(left, right),
+  left = $LinkedList(lhead, ltail),
+  right = $LinkedList(rhead, rtail),
+  compare(lhead, rhead, 0),
+  compare(ltail, rtail, cmp).
+
+compare($EmptyList(), $LinkedList(rhead, rtail), -1) :-
+  must_compare($EmptyList(), $LinkedList(rhead, rtail)).
+
+compare($LinkedList(lhead, ltail), $EmptyList(), 1) :-
+  must_compare($LinkedList(lhead, ltail), $EmptyList()).
+
+compare($EmptyList(), $Integer(r), -1) :-
+  must_compare($EmptyList(), $Integer(r)).
+
+compare($Integer(l), $EmptyList(), 1) :-
+  must_compare($Integer(l), $EmptyList()).
+
+/// convert integer to list
+must_compare($LinkedList(lhead, ltail), $LinkedList($Integer(r), $EmptyList())) :-
+  must_compare($LinkedList(lhead, ltail), $Integer(r)).
+
+compare($LinkedList(lhead, ltail), $Integer(r), cmp) :-
+  must_compare($LinkedList(lhead, ltail), $Integer(r)),
+  compare($LinkedList(lhead, ltail), $LinkedList($Integer(r), $EmptyList()), cmp).
+
+/// convert integer to list
+must_compare($LinkedList($Integer(l), $EmptyList()), $LinkedList(rhead, rtail)) :-
+  must_compare($Integer(l), $LinkedList(rhead, rtail)).
+
+compare($Integer(l), $LinkedList(rhead, rtail), cmp) :-
+  must_compare($Integer(l), $LinkedList(rhead, rtail)),
+  compare($LinkedList($Integer(l), $EmptyList()), $LinkedList(rhead, rtail), cmp).
+

@@ -1,0 +1,52 @@
+.include "day13.dl"
+
+/// Holds if `v` is a value in the packet data.
+.decl data_value(v:Value)
+data_value(v) :-
+  ( packet_data(_, v, _)
+  ; packet_data(_, _, v)
+  ).
+
+/// Holds if `v` is a packet divider value.
+.decl divider(v:Value)
+
+/// Value `[[2]]`
+divider($LinkedList($LinkedList($Integer(2), $EmptyList()), $EmptyList())).
+
+/// Value `[[6]]`
+divider($LinkedList($LinkedList($Integer(6), $EmptyList()), $EmptyList())).
+
+/// Holds if the `left` and `right` values must be compared.
+.decl top_must_compare(left:Value, right:Value)
+
+/// Compare a packet data value with a packet divider value.
+top_must_compare(left, right) :-
+  data_value(left),
+  divider(right).
+
+/// Compare a packet divider value with another packet divider value.
+top_must_compare(other, div) :-
+  divider(other),
+  divider(div),
+  other != div.
+
+/// Bootstrap `must_compare` with `top_must_compare`.
+must_compare(x,y) :-
+  top_must_compare(x,y).
+
+/// Holds if packet divider value `div` is ranked `nth` in the ordered list of
+/// packet data and packet dividers.
+.decl rank(div:Value, nth:number)
+
+/// Rank is found by counting the number of values less than the divider.
+rank(div, nth) :-
+  divider(div),
+  nth = count : { top_must_compare(v, div), compare(v, div, cmp), cmp < 0 } + 1.
+
+.decl answer(v:number)
+.output answer()
+answer(v) :-
+  rank(d1,i1),
+  rank(d2,i2),
+  d1 != d2,
+  v = i1 * i2.

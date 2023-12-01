@@ -4,6 +4,8 @@
 
 Following last year [Advent of Code 2021 in Datalog](https://github.com/quentin/aoc21-datalog)!
 
+*New* Year 2023 [Advent of Code 2023 in Datalog](https://github.com/quentin/aoc23-datalog).
+
 ## How to run?
 
 Puzzles are organized by day; answer to part 1 of day 1 is in `day01/day01a.dl`, answer to part 2 is in `day01b.dl`.
